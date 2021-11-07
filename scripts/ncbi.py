@@ -8,9 +8,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 session = requests.Session()
-session.mount('https://', HTTPAdapter(max_retries=Retry(total=5,
-                                                        allowed_methods=frozenset(
-                                                            ['GET', 'POST']))))  # 设置 post()方法进行重访问
+# 设置失败后进行重访问，最大5次
+session.mount('https://', HTTPAdapter(max_retries=Retry(total=5, allowed_methods=frozenset(['GET', 'POST']))))
 
 base_url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils'
 search_url = base_url + '/esearch.fcgi?db=snp&term='
@@ -174,14 +173,14 @@ if __name__ == '__main__':
     3.查询规则，详见官网：https://www.ncbi.nlm.nih.gov/snp/docs/eutils_help/，https://www.ncbi.nlm.nih.gov/snp/advanced
     4.个人的api_key，也可以不用填写，但是这样可以防止因为一秒钟访问次数过多被封禁
     """
-    rs_ID_details_list_all = []
+    rs_id_details_list_all = []
     gene_names_table_data = read_xlsx('高度近视panel.xlsx', 'total1110Genes', 23)
     gene_names = [gene_name[0] for gene_name in gene_names_table_data]
     for gene in gene_names:
         rs_id_list_data = get_rs_id(gene)
         rs_id_details_list = get_rs_id_details_all(rs_id_list_data)
-        rs_ID_details_list_all.extend(rs_id_details_list)
+        rs_id_details_list_all.extend(rs_id_details_list)
     table_sheets_data = handle_rs_id_details_to_table_data('snp',
-                                                           [handle_rs_id_details(rs_ID_details) for rs_ID_details in
-                                                            rs_ID_details_list_all])
+                                                           [handle_rs_id_details(rs_id_details) for rs_id_details in
+                                                            rs_id_details_list_all])
     generate_xlsx_file('rs_id_details.xlsx', table_sheets_data)
