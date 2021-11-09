@@ -1,21 +1,22 @@
 import os
 import re
-from urllib.parse import quote
-
 import requests
 from openpyxl import Workbook, load_workbook
 from requests.adapters import HTTPAdapter
+from urllib.parse import quote
 from urllib3.util.retry import Retry
+
 
 session = requests.Session()
 # 设置失败后进行重访问，最大5次
-session.mount('https://', HTTPAdapter(max_retries=Retry(total=5, allowed_methods=frozenset(['GET', 'POST']))))
+session.mount('https://', HTTPAdapter(max_retries=Retry(total=5,
+              allowed_methods=frozenset(['GET', 'POST']))))
 
 base_url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils'
 search_url = base_url + '/esearch.fcgi?db=snp&term='
 summary_url = base_url + '/esummary.fcgi?db=snp&id='
 fetch_url = base_url + '/efetch.fcgi?db=snp&id='
-api_key = '759460257441bc4ef7379b8e79a00b9ee808'
+api_key = ''
 
 
 def get_rs_id(gene_name):
@@ -43,7 +44,8 @@ def get_rs_id_details(rs_id):
 
 
 def group(list_to_group, step=100):
-    return [list_to_group[i:i + step] for i in range(0, len(list_to_group), step)]
+    return [list_to_group[i:i + step]
+            for i in range(0, len(list_to_group), step)]
 
 
 def get_rs_id_details_all(rs_id_list):
@@ -52,7 +54,7 @@ def get_rs_id_details_all(rs_id_list):
     rows = []
     for rs_id_list_10 in rs_id_list_group:
         final_url = summary_url + ','.join(rs_id_list_10) + \
-                    '&retmode=json'
+            '&retmode=json'
         if api_key:
             final_url += '&api_key=' + api_key
         r = session.get(final_url)
@@ -81,7 +83,12 @@ def handle_rs_id_details(rs_id_details):
     global_mafs = rs_id_details.get('global_mafs', '')
     if global_mafs:
         frequency_list = [
-            re.sub(r'[=/]', ':', item['freq']) + ':' + item['study'] for item in global_mafs]
+            re.sub(
+                r'[=/]',
+                ':',
+                item['freq']) +
+            ':' +
+            item['study'] for item in global_mafs]
         row['frequency'] = '|'.join(frequency_list)
     else:
         row['frequency'] = ''
@@ -92,9 +99,16 @@ def handle_rs_id_details_to_table_data(name='snp', snp_list=None):
     if snp_list is None:
         snp_list = [{}]
     table_sheets = {'name': name}
-    table_data = [['#chr', 'pos', 'variation', 'variant_type', 'snp_id',
-                   'clinical_significance', 'validation_status', 'function_class', 'gene', 'frequency'
-                   ]]
+    table_data = [['#chr',
+                   'pos',
+                   'variation',
+                   'variant_type',
+                   'snp_id',
+                   'clinical_significance',
+                   'validation_status',
+                   'function_class',
+                   'gene',
+                   'frequency']]
     table_data.extend([list(snp.values()) for snp in snp_list])
     table_sheets['data'] = table_data
     return table_sheets
@@ -180,7 +194,7 @@ if __name__ == '__main__':
         rs_id_list_data = get_rs_id(gene)
         rs_id_details_list = get_rs_id_details_all(rs_id_list_data)
         rs_id_details_list_all.extend(rs_id_details_list)
-    table_sheets_data = handle_rs_id_details_to_table_data('snp',
-                                                           [handle_rs_id_details(rs_id_details) for rs_id_details in
-                                                            rs_id_details_list_all])
+    table_sheets_data = handle_rs_id_details_to_table_data(
+        'snp', [
+            handle_rs_id_details(rs_id_details) for rs_id_details in rs_id_details_list_all])
     generate_xlsx_file('rs_id_details.xlsx', table_sheets_data)
