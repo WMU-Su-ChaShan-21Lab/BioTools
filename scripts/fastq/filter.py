@@ -87,7 +87,6 @@ def filter_fastq(read1_file_path, read2_file_path, operation, tile, reads, filte
     :param output_dir:输出文件也是gzip压缩文件\n
     :param output_prefix:输出文件前缀\n
     :return:无返回值\n
-    本函数还可以用read_n_lines_each_time函数来实现，后续会尝试测试一下速度如何
     """
     if tile:
         operation = 'tile'
@@ -169,4 +168,9 @@ def filter_fastq(read1_file_path, read2_file_path, operation, tile, reads, filte
 
 
 if __name__ == '__main__':
+    """
+    本脚本在python3.8环境下测试通过，预计Python3.6版本以上都不会出现问题
+    注意：本脚本需要安装click包
+    帮助：python3 filter.py --help
+    """
     filter_fastq()

@@ -18,3 +18,4 @@
 * fastq
     * compare.py：比对双端的fastq文件每四行的key（或者叫id）是否一一对应
     * filter.py：过滤掉fastq文件中的符合过滤规则的部分
+      * 后续会测试使用read_n_lines_each_time函数的速度如何
