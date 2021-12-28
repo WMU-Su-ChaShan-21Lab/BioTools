@@ -4,11 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+click = "*"
 requests = "*"
 openpyxl = "*"
 
 [dev-packages]
 autopep8 = "*"
+pretty_errors = "*"
 
 [requires]
 python_version = "3.9"
