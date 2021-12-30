@@ -10,6 +10,7 @@ openpyxl = "*"
 
 [dev-packages]
 autopep8 = "*"
+pylint = "*"
 pretty_errors = "*"
 
 [requires]
