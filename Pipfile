@@ -4,9 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pipreqs = "*"
 click = "*"
 requests = "*"
 openpyxl = "*"
+jupyterlab = "*"
+pandas = "*"
 
 [dev-packages]
 autopep8 = "*"

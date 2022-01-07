@@ -18,7 +18,6 @@ import gzip
 import os
 import time
 from itertools import islice
-from typing import List, Iterable
 
 import click
 
@@ -42,23 +41,6 @@ def any_equal(filtered_str, rule_list):
 
 def any_include(filtered_str, rule_list):
     return any([rule in filtered_str for rule in rule_list])
-
-
-def read_n_lines_each_time(path: str, n: int) -> Iterable[List[str]]:
-    i = 0
-    lines = []
-    with open(path, mode='r', encoding='utf8') as f:
-        for line in f:
-            i += 1
-            lines.append(line.strip())
-            if i >= n:
-                yield lines
-                # reset buffer
-                i = 0
-                lines.clear()
-    # remaining lines
-    if i > 0:
-        yield lines
 
 
 @click.command()
