@@ -1,16 +1,16 @@
-import os
 import re
-import requests
-from openpyxl import Workbook, load_workbook
-from requests.adapters import HTTPAdapter
 from urllib.parse import quote
+
+import requests
+from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from utils.excel import read_xlsx, generate_xlsx_file
 
 session = requests.Session()
 # 设置失败后进行重访问，最大5次
 session.mount('https://', HTTPAdapter(max_retries=Retry(total=5,
-              allowed_methods=frozenset(['GET', 'POST']))))
+                                                        allowed_methods=frozenset(['GET', 'POST']))))
 
 base_url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils'
 search_url = base_url + '/esearch.fcgi?db=snp&term='
@@ -54,7 +54,7 @@ def get_rs_id_details_all(rs_id_list):
     rows = []
     for rs_id_list_10 in rs_id_list_group:
         final_url = summary_url + ','.join(rs_id_list_10) + \
-            '&retmode=json'
+                    '&retmode=json'
         if api_key:
             final_url += '&api_key=' + api_key
         r = session.get(final_url)
@@ -134,49 +134,6 @@ def fetch_rs_id_details_all(rs_id_list):
     search_results = r.json()
     # print(search_results)
     return search_results
-
-
-def read_xlsx(file_path, sheet_name, column_index):
-    wb = load_workbook(filename=file_path, data_only=True)
-    ws = wb[sheet_name]
-    table_data = []
-    rows = ws.rows
-    for row in rows:
-        row_data = []
-        col = row[column_index]
-        if col.value:
-            row_data.append(col.value)
-        if row_data:
-            table_data.append(row_data)
-    return table_data
-
-
-def remove_file(file_path):
-    """
-    有文件就删除文件，没有文件就什么都不做
-    """
-    if os.path.isfile(file_path):
-        os.remove(file_path)
-        return True
-    else:
-        return False
-
-
-def generate_xlsx_file(filename, table_sheet):
-    wb = Workbook()
-    ws = wb.create_sheet(table_sheet['name'])
-    table_data = table_sheet['data']
-    rows_length = len(table_data)
-    for i in range(rows_length):
-        col_length = len(table_data[i])
-        for j in range(col_length):
-            ws.cell(row=i + 1, column=j + 1, value=table_data[i][j])
-    wb.remove(wb['Sheet'])
-    if remove_file(filename):
-        wb.save(filename)
-        return True
-    else:
-        return False
 
 
 if __name__ == '__main__':
