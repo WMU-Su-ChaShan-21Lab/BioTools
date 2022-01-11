@@ -47,8 +47,11 @@ def get_bio_sample_infos(query_dict):
     res = session.get(search_url)
     res.raise_for_status()
     result = res.json()
-    bio_sample_infos = [{'bio_sample_id': item['accession'], 'cell_type': item['biosample_ontology']['term_name']} for
-                        item in result['@graph']]
+    bio_sample_infos = [{
+        'bio_sample_id': item['accession'],
+        'cell_type': item['biosample_ontology']['term_name'],
+            'assay_title':item['assay_title'],
+        } for item in result['@graph']]
     return bio_sample_infos
 
 
@@ -66,15 +69,16 @@ class MyThread(threading.Thread):
         return self.result or None
 
 
-def get_bio_sample_file(bio_sample_id, cell_type):
-    bio_sample_url = base_bio_samples_url + bio_sample_id + '/?format=json'
+def get_bio_sample_file(bio_sample_info):
+    bio_sample_url = base_bio_samples_url + bio_sample_info['bio_sample_id'] + '/?format=json'
     res = session.get(bio_sample_url)
     res.raise_for_status()
     result = res.json()
     files = result['files']
     files_list = [{
-        'bio_sample_id': bio_sample_id,
-        'cell_type': cell_type,
+        'bio_sample_id': bio_sample_info['bio_sample_id'],
+        'cell_type': bio_sample_info['cell_type'],
+        'assay_title':bio_sample_info['assay_title'],
         'file_id': file['accession'],
         'assembly': file['assembly'],
         'file_type': file['file_type'],
@@ -82,29 +86,30 @@ def get_bio_sample_file(bio_sample_id, cell_type):
         'href': file['href'],
     } for file in files if file['output_category'] != 'raw data']
     has_hg38 = any([file['assembly'] == 'GRCh38' for file in files_list])
+    row=[]
     if has_hg38:
         row = [list(file.values()) for file in files_list if file['assembly'] == 'GRCh38'
                and file['file_type'] == 'tsv' and file['output_type'] == 'gene quantifications']
-
-    else:
+    # 防止hg38中没有符合条件的，虽然可能性比较低
+    if not row or not has_hg38:
         row = [list(file.values()) for file in files_list if file['assembly'] == 'hg19'
                and file['file_type'] == 'bed broadPeak' and file['output_type'] == 'filtered transcribed fragments']
     # download_links.extend(row)
     return row
 
 
-def get_file_download_links(bio_sample_infos):
+def get_file_infos(bio_sample_infos):
     """
     如果有h38，优先使用，否则使用h19
     h38: file_type:tsv output_type:gene quantifications
     h19: file_type:bed broadPeak output_type:filtered transcribed fragments
     """
     # 多线程写法
-    download_links = []
+    file_infos = []
     threads = []
-    for bio_sample in bio_sample_infos:
-        thread = threading.Thread(target=lambda q, arg1, arg2: q.put(get_bio_sample_file(arg1, arg2)),
-                                  args=(que, bio_sample['bio_sample_id'], bio_sample['cell_type'],),
+    for bio_sample_info in bio_sample_infos:
+        thread = threading.Thread(target=lambda q, arg1: q.put(get_bio_sample_file(arg1)),
+                                  args=(que, bio_sample_info,),
                                   daemon=True)
         threads.append(thread)
     for thread in threads:
@@ -112,8 +117,8 @@ def get_file_download_links(bio_sample_infos):
     for thread in threads:
         thread.join()
     while not que.empty():
-        download_links.extend(que.get())
-    return download_links
+        file_infos.extend(que.get())
+    return file_infos
 
     # 单线程写法，速度慢
     # download_links = []
@@ -149,20 +154,22 @@ def download_files(download_links, download_dir='./'):
 
 if __name__ == '__main__':
     """
-    下载文件使用的是多线程，可以最大利用带宽，但是占用内存也非常大
+    本脚本是下载encode数据用的
+    下载文件使用的是多线程，可以最大利用带宽，但是占用内存也非常大，如果内存不够很可能内存溢出
     """
     # 获得信息和链接
-    table_rows = get_file_download_links(get_bio_sample_infos(base_search_query))
-    print('获得信息和下载链接成功')
+    file_info_rows = get_file_infos(get_bio_sample_infos(base_search_query))
+    print('获得文件信息成功')
     # 生成表格
-    generate_xlsx_file('./download_links.xlsx', {
+    generate_xlsx_file('./files_info.xlsx', {
         'name': '下载链接',
         'data':
             [
-                ['bio_sample_id', 'cell_type', 'file_id', 'assembly', 'file_type', 'output_type', 'download link'],
-                *table_rows
+                ['bio_sample_id', 'cell_type','assay_title', 'file_id', 'assembly', 'file_type', 'output_type', 'download link'],
+                *file_info_rows
             ]
     })
-    print('生成表格成功，开始下载文件')
+    print('生成表格成功')
     # 下载文件
-    download_files([row[-1] for row in table_rows], download_dir='./download_files/')
+    # download_files([row[-1] for row in table_rows], download_dir='./download_files/')
+    print('开始下载文件')
