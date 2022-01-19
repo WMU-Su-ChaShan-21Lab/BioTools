@@ -8,8 +8,10 @@ pipreqs = "*"
 click = "*"
 requests = "*"
 openpyxl = "*"
-jupyterlab = "*"
 pandas = "*"
+scipy = "*"
+sympy = "*"
+jupyterlab = "*"
 
 [dev-packages]
 autopep8 = "*"
@@ -17,4 +19,8 @@ pylint = "*"
 pretty_errors = "*"
 
 [requires]
+#python_version = "3.6"
+#python_version = "3.7"
+#python_version = "3.8"
 python_version = "3.9"
+#python_version = "3.10"

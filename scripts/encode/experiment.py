@@ -20,7 +20,7 @@ from urllib.parse import urlencode, unquote
 
 from scripts.encode import base_url, base_search_url, base_bio_samples_url
 from utils.excel import generate_xlsx_file
-from utils.file import make_dir
+from utils.file import make_dir,remove_file
 from utils.http import session
 
 thread_lock = threading.Lock()
@@ -40,6 +40,14 @@ base_search_query = {
     # json格式返回
     'format': 'json',
 }
+# base_search_query = {
+#     'type': ['Experiment'],
+#     'status': ['released'],
+#     'assay_title': ['polyA plus RNA-seq', 'total RNA-seq', 'RNA microarray'],
+#     'replicates.library.biosample.donor.organism.scientific_name': ['Homo sapiens'],
+#     'limit': 'all',
+#     'format': ['json']
+# }
 
 
 def get_bio_sample_infos(query_dict):
@@ -50,8 +58,8 @@ def get_bio_sample_infos(query_dict):
     bio_sample_infos = [{
         'bio_sample_id': item['accession'],
         'cell_type': item['biosample_ontology']['term_name'],
-            'assay_title':item['assay_title'],
-        } for item in result['@graph']]
+        'assay_title': item['assay_title'],
+    } for item in result['@graph']]
     return bio_sample_infos
 
 
@@ -78,22 +86,29 @@ def get_bio_sample_file(bio_sample_info):
     files_list = [{
         'bio_sample_id': bio_sample_info['bio_sample_id'],
         'cell_type': bio_sample_info['cell_type'],
-        'assay_title':bio_sample_info['assay_title'],
+        'assay_title': bio_sample_info['assay_title'],
         'file_id': file['accession'],
         'assembly': file['assembly'],
+        'file_format': file['file_format'],
         'file_type': file['file_type'],
         'output_type': file['output_type'],
+        'file_size':file.get('file_size', None),
+        'md5sum':file['md5sum'],
         'href': file['href'],
     } for file in files if file['output_category'] != 'raw data']
     has_hg38 = any([file['assembly'] == 'GRCh38' for file in files_list])
-    row=[]
+    row = []
     if has_hg38:
         row = [list(file.values()) for file in files_list if file['assembly'] == 'GRCh38'
-               and file['file_type'] == 'tsv' and file['output_type'] == 'gene quantifications']
+               and file['file_type'] == 'tsv' and file['output_type'] == 'gene quantifications'
+               ]
     # 防止hg38中没有符合条件的，虽然可能性比较低
     if not row or not has_hg38:
         row = [list(file.values()) for file in files_list if file['assembly'] == 'hg19'
-               and file['file_type'] == 'bed broadPeak' and file['output_type'] == 'filtered transcribed fragments']
+               # and 'bigBed' not in file['file_type']
+               and ('bed' in file['file_type'] and 'bigBed' not in file['file_type'])
+               # and (file['output_type'] == 'filtered transcribed fragments')
+               ]
     # download_links.extend(row)
     return row
 
@@ -131,9 +146,18 @@ def get_file_infos(bio_sample_infos):
     # return download_links
 
 
-def download_file(download_url, download_dir='./'):
+def download_file(download_info, download_dir='./'):
+    file_size,md5,download_link=download_info
+    download_url=base_url + download_link
     make_dir(download_dir)
     file_path = os.path.join(download_dir, download_url.split('/')[-1])
+    if os.path.exists(file_path):
+        if file_size and os.path.getsize(file_path)==file_size:
+            print(f'{file_path} 文件已经存在，跳过下载')
+            return True
+        else:
+            remove_file(file_path)
+    # print(file_path)
     res = session.get(download_url)
     res.raise_for_status()
     with open(file_path, 'wb') as f:
@@ -141,11 +165,10 @@ def download_file(download_url, download_dir='./'):
         f.write(res.content)
 
 
-def download_files(download_links, download_dir='./'):
+def download_files(download_infos, download_dir='./'):
     threads = []
-    for download_link in download_links:
-        download_url = base_url + download_link
-        thread = threading.Thread(target=download_file, args=(download_url, download_dir))
+    for download_info in download_infos:
+        thread = threading.Thread(target=download_file, args=(download_info, download_dir))
         threads.append(thread)
     for thread in threads:
         thread.start()
@@ -165,11 +188,12 @@ if __name__ == '__main__':
         'name': '下载链接',
         'data':
             [
-                ['bio_sample_id', 'cell_type','assay_title', 'file_id', 'assembly', 'file_type', 'output_type', 'download link'],
+                ['bio_sample_id', 'cell_type', 'assay_title', 'file_id', 'assembly', 'file_format', 'file_type',
+                 'output_type','file_size','md5sum','download link'],
                 *file_info_rows
             ]
     })
     print('生成表格成功')
     # 下载文件
-    # download_files([row[-1] for row in table_rows], download_dir='./download_files/')
+    download_files([row[-3:] for row in file_info_rows], download_dir='./download_files/')
     print('开始下载文件')

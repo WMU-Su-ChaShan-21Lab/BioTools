@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 """
 @File Name      :   __init__.py.py    
-@Create Time    :   2021/12/31 15:01
+@Create Time    :   2022/1/11 20:34
 @Description    :   
 @Version        :   
 @License        :   MIT
@@ -12,6 +12,3 @@
 @Motto          :   All our science, measured against reality, is primitive and childlike - and yet it is the most precious thing we have.
 """
 __auth__ = 'diklios'
-# import sys
-# 没pycharm的时候需要添加文件夹到环境变量
-# sys.path.append(os.getcwd())

@@ -13,26 +13,12 @@
 """
 __auth__ = 'diklios'
 
-import functools
 import gzip
 import os
-import time
 from itertools import islice
 
 import click
-
-
-# 更精确的运行时间记录
-def print_accurate_execute_time(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.perf_counter()
-        res = func(*args, **kwargs)
-        end = time.perf_counter()
-        print(f'函数 {func.__name__} 耗时 {(end - start) * 1000} ms')
-        return res
-
-    return wrapper
+from utils.time import print_accurate_execute_time
 
 
 def any_equal(filtered_str, rule_list):
