@@ -25,8 +25,7 @@ import pandas as pd
 def handle_sample(dir_path):
     start = time.perf_counter()
     dir_name = os.path.basename(dir_path)
-    file_names = os.listdir(dir_path)
-    file_paths = [os.path.join(dir_path, file_name) for file_name in file_names]
+    file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path) if 'filter' not in file_name]
     dfs = []
     for file_path in file_paths:
         df = pd.read_csv(file_path, sep='\t', skiprows=112, compression='gzip')
