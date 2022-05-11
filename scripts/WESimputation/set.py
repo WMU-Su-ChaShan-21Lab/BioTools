@@ -1,3 +1,18 @@
+# -*- encoding: utf-8 -*-
+"""
+@File Name      :   set.py    
+@Create Time    :   2022/5/8 17:20
+@Description    :   
+@Version        :   
+@License        :   MIT
+@Author         :   diklios
+@Contact Email  :   diklios5768@gmail.com
+@Github         :   https://github.com/diklios5768
+@Blog           :   
+@Motto          :   All our science, measured against reality, is primitive and childlike - and yet it is the most precious thing we have.
+"""
+__auth__ = 'diklios'
+
 import functools
 import os
 import re
@@ -62,7 +77,7 @@ def task1(input_dir, output_dir, limit):
                         if len(row) <= 2:
                             continue
                         ch = row[0]
-                        site=row[1]
+                        site = row[1]
                         p_value = int(row[2])
                         if p_value >= 10:
                             # 使用集合方法
@@ -95,12 +110,12 @@ def task1(input_dir, output_dir, limit):
 if __name__ == '__main__':
     """
     说明：任务1
-    
+
     参数：
     input_dir:输入文件存放的文件夹
     output_dir:输出文件存放的文件夹，默认会生成输入文件夹下面的outputs空文件夹
     limit:只处理文件夹中前n个文件
-    
+
     使用：python3 ./task1.py --input_dir=输入文件夹 --output_dir=输出文件夹 --limit=10
     """
     task1()
