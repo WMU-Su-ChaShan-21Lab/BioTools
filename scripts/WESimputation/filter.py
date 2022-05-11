@@ -80,7 +80,7 @@ def main(input_dir, task_num=10, node_num=10, group=0, auto_generate=False):
     if auto_generate:
         for i in range(node_num):
             with open(os.path.join(scripts_dir_path, f'filter-{i}.sh'), 'w') as f:
-                f.write(f'python {__file__} -i {input_dir} -t{task_num} -n {node_num} -g {i}')
+                f.write(f'python {__file__} -i {input_dir} -n {node_num} -g {i} -t {task_num}')
         return
     dir_names = os.listdir(input_dir)
     dir_paths = [os.path.join(input_dir, dir_name) for dir_name in dir_names]
