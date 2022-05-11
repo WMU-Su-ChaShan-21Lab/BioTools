@@ -21,12 +21,11 @@ import click
 @click.command()
 @click.argument('dir_path', type=click.Path(exists=True))
 def main(dir_path):
-    dir_names = os.listdir(dir_path)
-    file_names = [os.path.join(dir_path, dir_name, dir_name + '.sortedfilter.txt.gz') for dir_name in dir_names]
-    for file_name in file_names:
-        if os.path.exists(file_name):
-            os.remove(file_name)
-            print(file_name)
+    file_paths = [os.path.join(dir_path, dir_name, dir_name + 'filter.txt.gz') for dir_name in os.listdir(dir_path)]
+    for file_path in file_paths:
+        print(file_path)
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 
 if __name__ == '__main__':
