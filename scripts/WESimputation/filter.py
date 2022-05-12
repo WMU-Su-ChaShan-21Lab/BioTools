@@ -33,6 +33,7 @@ def handle_sample(dir_path):
         df['INFO'] = df['INFO'].str.split(';').str[0].str.replace('DP=', '')
         filtered_file_name = os.path.join(dir_path, os.path.basename(file_path).replace('vcf.gz', 'filter.txt.gz'))
         df.to_csv(filtered_file_name, sep='\t', index=False, compression='gzip')
+        dfs.append(df)
         print(f'{dir_name}:{file_path}处理完成')
         print(f'耗时:{time.perf_counter() - start}')
     all_df = pd.concat(dfs)

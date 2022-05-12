@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 """
-@File Name      :   mean.py    
+@File Name      :   statistics.py    
 @Create Time    :   2022/5/8 17:00
 @Description    :   
 @Version        :   
@@ -35,16 +35,18 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
         df = pd.read_csv(file_path, sep='\t', compression='gzip')
         df = df[df['POS'] >= up_range, df['POS'] < down_range]
         dfs.append(df)
-    all_df = pd.concat(dfs)
-    group_by = ['#CHROM', 'POS']
-    all_df_sum = all_df.groupby(group_by)['INFO'].agg('sum').reset_index().rename(columns={'INFO': 'SUM'})
-    all_df_count = all_df.groupby(group_by).size().reset_index().rename(columns={0: 'COUNT'})
-    all_df = pd.merge(all_df_sum, all_df_count, on=group_by)
-    all_df['MEAN'] = all_df['SUM'] / all_df['COUNT']
-    all_df.to_csv(os.path.join(output_dir_path, f'{chromosome}-{up_range}-{down_range}.mean.txt.gz'), sep='\t',
-                  index=False)
-    print(f'{chromosome}-{up_range}-{down_range} done:{time.time() - start_time}')
-
+    if len(dfs) != 0:
+        all_df = pd.concat(dfs)
+        group_by = ['#CHROM', 'POS']
+        all_df_sum = all_df.groupby(group_by)['INFO'].agg('sum').reset_index().rename(columns={'INFO': 'SUM'})
+        all_df_count = all_df.groupby(group_by).size().reset_index().rename(columns={0: 'COUNT'})
+        all_df = pd.merge(all_df_sum, all_df_count, on=group_by)
+        all_df['MEAN'] = all_df['SUM'] / all_df['COUNT']
+        all_df.to_csv(os.path.join(output_dir_path, f'{chromosome}-{up_range}-{down_range}.statistics.txt.gz'), sep='\t',
+                      index=False,compression='gzip')
+        print(f'{chromosome}-{up_range}-{down_range} done:{time.time() - start_time}')
+    else:
+        print(f'{chromosome}-{up_range}-{down_range} no file found')
 
 @click.command()
 @click.option('--input_dir_path', '-i', type=str, required=True, help='Input dir')
@@ -59,17 +61,16 @@ def main(input_dir_path, chromosome_num: str, size: int = 100000, up_group_num: 
     """
     up_group_num 应该遵循python的列表规则从0开始，如果从一开始代码改动比较麻烦
     """
-
     if not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
         raise Exception('Input dir not exists or not a dir')
-    output_dir_path = os.path.join(input_dir_path, 'mean')
+    output_dir_path = os.path.join(input_dir_path, 'statistics')
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path, exist_ok=True)
     if auto_generate:
         for chromosome, limit in chromosome_sizes.items():
             group_num = math.ceil(limit / size)
             for i in range(0, group_num, generate_group_num):
-                with open(os.path.join(output_dir_path, f'mean-{chromosome}:{i}-{i + generate_group_num}.sh'),
+                with open(os.path.join(output_dir_path, f'statistics-{chromosome}:{i}-{i + generate_group_num}.sh'),
                           'w') as f:
                     f.write(
                         f'python3 {__file__} -i {input_dir_path} -c {chromosome.replace("chr", "")} -s {size} -u {i} -d {i + generate_group_num}')
