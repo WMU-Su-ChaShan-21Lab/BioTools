@@ -65,13 +65,13 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
 @click.command()
 @click.option('--input_dir_path', '-i', type=str, required=True, help='Input dir')
 @click.option('--chromosome_num', '-c', type=str, help='Chromosome')
-@click.option('--size', '-s', type=int, help='Size')
-@click.option('up_group_num', '-u', type=int, help='Up group number')
-@click.option('down_group_num', '-d', type=int, help='Down group number')
+@click.option('--size', '-s', type=int, default=10000000, help='Size')
+@click.option('up_group_num', '-u', type=int, default=0, help='Up group number')
+@click.option('down_group_num', '-d', type=int, default=None, help='Down group number')
 @click.option('--auto_generate', '-a', is_flag=True, help='Auto generate scripts')
 @click.option('--generate_group_num', '-g', type=int, default=1, help='Auto generate group by')
-def main(input_dir_path, chromosome_num: str, size: int = 100000, up_group_num: int = 0, down_group_num: int = None,
-         auto_generate=False, generate_group_num: int = 1):
+def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down_group_num: int,
+         auto_generate, generate_group_num: int):
     """
     up_group_num 应该遵循python的列表规则从0开始，如果从一开始代码改动比较麻烦
     """
@@ -85,7 +85,7 @@ def main(input_dir_path, chromosome_num: str, size: int = 100000, up_group_num: 
         for chromosome, limit in chromosome_sizes.items():
             group_num = math.ceil(limit / size)
             for i in range(0, group_num, generate_group_num):
-                with open(os.path.join(output_dir_path, f'statistics-{chromosome}:{i}-{i + generate_group_num}.sh'),
+                with open(os.path.join(output_dir_path, f'statistics-{chromosome}-{i}-{i + generate_group_num}.sh'),
                           'w') as f:
                     f.write(
                         f'python3 {__file__} -i {input_dir_path} -c {chromosome.replace("chr", "")} -s {size} -u {i} -d {i + generate_group_num}')
