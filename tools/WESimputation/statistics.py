@@ -75,7 +75,7 @@ def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down
     """
     up_group_num 应该遵循python的列表规则从0开始，如果从一开始代码改动比较麻烦
     """
-    if not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
+    if not input_dir_path or not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
         raise Exception('Input dir not exists or not a dir')
     output_dir_path = os.path.join(input_dir_path, 'statistics')
     if auto_generate:
