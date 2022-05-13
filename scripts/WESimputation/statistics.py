@@ -35,18 +35,19 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
         df = pd.read_csv(file_path, sep='\t', compression='gzip')
         df = df[df['POS'] >= up_range, df['POS'] < down_range]
         dfs.append(df)
-    if len(dfs) != 0:
+    if len(dfs) >= 2:
         all_df = pd.concat(dfs)
         group_by = ['#CHROM', 'POS']
         all_df_sum = all_df.groupby(group_by)['INFO'].agg('sum').reset_index().rename(columns={'INFO': 'SUM'})
         all_df_count = all_df.groupby(group_by).size().reset_index().rename(columns={0: 'COUNT'})
         all_df = pd.merge(all_df_sum, all_df_count, on=group_by)
         all_df['MEAN'] = all_df['SUM'] / all_df['COUNT']
-        all_df.to_csv(os.path.join(output_dir_path, f'{chromosome}-{up_range}-{down_range}.statistics.txt.gz'), sep='\t',
-                      index=False,compression='gzip')
+        all_df.to_csv(os.path.join(output_dir_path, f'{chromosome}-{up_range}-{down_range}.statistics.txt.gz'),
+                      sep='\t', index=False, compression='gzip')
         print(f'{chromosome}-{up_range}-{down_range} done:{time.time() - start_time}')
     else:
         print(f'{chromosome}-{up_range}-{down_range} no file found')
+
 
 @click.command()
 @click.option('--input_dir_path', '-i', type=str, required=True, help='Input dir')

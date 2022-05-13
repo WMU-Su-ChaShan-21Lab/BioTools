@@ -36,11 +36,14 @@ def handle_sample(dir_path):
         dfs.append(df)
         print(f'{dir_name}:{file_path}处理完成')
         print(f'耗时:{time.perf_counter() - start}')
-    all_df = pd.concat(dfs)
-    all_filtered_file_name = os.path.join(dir_path, dir_name + '.all.filter.txt.gz')
-    all_df.to_csv(all_filtered_file_name, sep='\t', index=False, compression='gzip')
-    print(dir_name, 'done')
-    print(f'耗时:{time.perf_counter() - start}')
+    if len(dfs) >= 2:
+        all_df = pd.concat(dfs)
+        all_filtered_file_name = os.path.join(dir_path, dir_name + '.all.filter.txt.gz')
+        all_df.to_csv(all_filtered_file_name, sep='\t', index=False, compression='gzip')
+        print(dir_name, 'done')
+        print(f'耗时:{time.perf_counter() - start}')
+    else:
+        print(dir_name + ' no file')
 
 
 def handle_dirs(dir_paths):
