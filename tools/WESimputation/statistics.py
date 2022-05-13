@@ -40,7 +40,7 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
             if not os.path.exists(file_path):
                 continue
             df = pd.read_csv(file_path, sep='\t', compression='gzip')
-            df = df[df['POS'] >= up_range, df['POS'] < down_range]
+            df = df[(df['POS'] >= up_range)&(df['POS'] < down_range)]
             dfs.append(df)
         if len(dfs) >= 2:
             all_df = pd.concat(dfs)
