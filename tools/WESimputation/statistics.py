@@ -18,14 +18,16 @@ import multiprocessing
 import os
 import sys
 import time
+from shutil import rmtree
 
 import click
 import pandas as pd
 
-path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-sys.path.append(path)
+module_path = os.path.dirname(__file__)
+root_path = os.path.dirname(os.path.dirname(module_path))
+sys.path.append(root_path)
 
-from scripts.WESimputation import chromosome_sizes
+from tools.WESimputation import chromosome_sizes
 
 
 def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_range: int, down_range: int):
@@ -76,8 +78,9 @@ def main(input_dir_path, chromosome_num: str, size: int = 100000, up_group_num: 
     if not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
         raise Exception('Input dir not exists or not a dir')
     output_dir_path = os.path.join(input_dir_path, 'statistics')
-    if not os.path.exists(output_dir_path):
-        os.makedirs(output_dir_path, exist_ok=True)
+    if os.path.exists(output_dir_path):
+        rmtree(output_dir_path)
+    os.makedirs(output_dir_path, exist_ok=True)
     if auto_generate:
         for chromosome, limit in chromosome_sizes.items():
             group_num = math.ceil(limit / size)

@@ -17,6 +17,7 @@ import math
 import multiprocessing
 import os
 import time
+from shutil import rmtree
 
 import click
 import pandas as pd
@@ -26,7 +27,8 @@ def handle_sample(dir_path):
     try:
         start = time.perf_counter()
         dir_name = os.path.basename(dir_path)
-        file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path) if 'filter' not in file_name]
+        file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path) if
+                      'filter' not in file_name]
         dfs = []
         for file_path in file_paths:
             df = pd.read_csv(file_path, sep='\t', skiprows=112, compression='gzip')
@@ -52,6 +54,7 @@ def handle_sample(dir_path):
     except Exception as e:
         print(e)
         print(dir_path, 'failed')
+
 
 def handle_dirs(dir_paths):
     for dir_path in dir_paths:
@@ -85,8 +88,9 @@ def handle_tasks(dir_paths, task_num=10):
 @click.option('--auto_generate', '-a', is_flag=True, help='Auto generate scripts')
 def main(input_dir, task_num=10, node_num=10, group=0, auto_generate=False):
     scripts_dir_path = os.path.join(input_dir, 'filter')
-    if not os.path.exists(scripts_dir_path):
-        os.makedirs(scripts_dir_path, exist_ok=True)
+    if os.path.exists(scripts_dir_path):
+        rmtree(scripts_dir_path)
+    os.makedirs(scripts_dir_path, exist_ok=True)
     if auto_generate:
         for i in range(node_num):
             with open(os.path.join(scripts_dir_path, f'filter-{i}.sh'), 'w') as f:
