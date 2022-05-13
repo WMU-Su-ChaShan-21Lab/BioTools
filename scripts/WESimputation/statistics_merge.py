@@ -24,7 +24,10 @@ import click
 @click.argument('input_dir_path', type=click.Path(exists=True))
 @click.option('--size', '-s', type=int, help='Size')
 def main(input_dir_path, size=100000):
-    file_names = [file_name for file_name in os.listdir(input_dir_path) if file_name.endswith('.statistics.txt.gz')]
+    file_names = [
+        file_name for file_name in os.listdir(input_dir_path)
+        if file_name.endswith('.statistics.txt.gz') and 'all' not in file_name
+    ]
     file_names.sort()
     chr_file_names = defaultdict(list)
     for file_name in file_names:

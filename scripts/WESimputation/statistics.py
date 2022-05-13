@@ -21,7 +21,7 @@ import time
 import click
 import pandas as pd
 
-from . import chromosome_sizes
+from scripts.WESimputation import chromosome_sizes
 
 
 def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_range: int, down_range: int):
@@ -111,4 +111,6 @@ def main(input_dir_path, chromosome_num: str, size: int = 100000, up_group_num: 
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    print(__file__)
+
