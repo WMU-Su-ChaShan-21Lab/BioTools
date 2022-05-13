@@ -16,10 +16,14 @@ __auth__ = 'diklios'
 import math
 import multiprocessing
 import os
+import sys
 import time
 
 import click
 import pandas as pd
+
+path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(path)
 
 from scripts.WESimputation import chromosome_sizes
 
@@ -54,6 +58,7 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
         print(f'{chromosome}-{up_range}-{down_range} done:{time.time() - start_time}')
     except Exception as e:
         print(f'{chromosome}-{up_range}-{down_range} error:{e}')
+
 
 @click.command()
 @click.option('--input_dir_path', '-i', type=str, required=True, help='Input dir')
@@ -111,6 +116,4 @@ def main(input_dir_path, chromosome_num: str, size: int = 100000, up_group_num: 
 
 
 if __name__ == '__main__':
-    # main()
-    print(__file__)
-
+    main()
