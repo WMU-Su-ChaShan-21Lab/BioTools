@@ -25,18 +25,25 @@ from . import chromosome_sizes
 
 
 def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_range: int, down_range: int):
-    start_time = time.time()
-    dfs = []
-    for dir_path in dir_paths:
-        dir_name = os.path.basename(dir_path)
-        file_path = os.path.join(dir_path, dir_name + '.' + chromosome + '.filter.txt.gz')
-        if not os.path.exists(file_path):
-            continue
-        df = pd.read_csv(file_path, sep='\t', compression='gzip')
-        df = df[df['POS'] >= up_range, df['POS'] < down_range]
-        dfs.append(df)
-    if len(dfs) >= 2:
-        all_df = pd.concat(dfs)
+    try:
+        start_time = time.time()
+        dfs = []
+        for dir_path in dir_paths:
+            dir_name = os.path.basename(dir_path)
+            file_path = os.path.join(dir_path, dir_name + '.' + chromosome + '.filter.txt.gz')
+            if not os.path.exists(file_path):
+                continue
+            df = pd.read_csv(file_path, sep='\t', compression='gzip')
+            df = df[df['POS'] >= up_range, df['POS'] < down_range]
+            dfs.append(df)
+        if len(dfs) >= 2:
+            all_df = pd.concat(dfs)
+        elif len(dfs) == 1:
+            all_df = dfs[0]
+            print(f'{chromosome}-{up_range}-{down_range} only one file found')
+        else:
+            print(f'{chromosome}-{up_range}-{down_range} no file found')
+            return
         group_by = ['#CHROM', 'POS']
         all_df_sum = all_df.groupby(group_by)['INFO'].agg('sum').reset_index().rename(columns={'INFO': 'SUM'})
         all_df_count = all_df.groupby(group_by).size().reset_index().rename(columns={0: 'COUNT'})
@@ -45,9 +52,8 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
         all_df.to_csv(os.path.join(output_dir_path, f'{chromosome}-{up_range}-{down_range}.statistics.txt.gz'),
                       sep='\t', index=False, compression='gzip')
         print(f'{chromosome}-{up_range}-{down_range} done:{time.time() - start_time}')
-    else:
-        print(f'{chromosome}-{up_range}-{down_range} no file found')
-
+    except Exception as e:
+        print(f'{chromosome}-{up_range}-{down_range} error:{e}')
 
 @click.command()
 @click.option('--input_dir_path', '-i', type=str, required=True, help='Input dir')

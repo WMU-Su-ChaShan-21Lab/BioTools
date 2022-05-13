@@ -23,28 +23,35 @@ import pandas as pd
 
 
 def handle_sample(dir_path):
-    start = time.perf_counter()
-    dir_name = os.path.basename(dir_path)
-    file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path) if 'filter' not in file_name]
-    dfs = []
-    for file_path in file_paths:
-        df = pd.read_csv(file_path, sep='\t', skiprows=112, compression='gzip')
-        df = df[['#CHROM', 'POS', 'INFO']][df['INFO'].str.contains('DP=')]
-        df['INFO'] = df['INFO'].str.split(';').str[0].str.replace('DP=', '')
-        filtered_file_name = os.path.join(dir_path, os.path.basename(file_path).replace('vcf.gz', 'filter.txt.gz'))
-        df.to_csv(filtered_file_name, sep='\t', index=False, compression='gzip')
-        dfs.append(df)
-        print(f'{dir_name}:{file_path}处理完成')
-        print(f'耗时:{time.perf_counter() - start}')
-    if len(dfs) >= 2:
-        all_df = pd.concat(dfs)
+    try:
+        start = time.perf_counter()
+        dir_name = os.path.basename(dir_path)
+        file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path) if 'filter' not in file_name]
+        dfs = []
+        for file_path in file_paths:
+            df = pd.read_csv(file_path, sep='\t', skiprows=112, compression='gzip')
+            df = df[['#CHROM', 'POS', 'INFO']][df['INFO'].str.contains('DP=')]
+            df['INFO'] = df['INFO'].str.split(';').str[0].str.replace('DP=', '')
+            filtered_file_name = os.path.join(dir_path, os.path.basename(file_path).replace('vcf.gz', 'filter.txt.gz'))
+            df.to_csv(filtered_file_name, sep='\t', index=False, compression='gzip')
+            dfs.append(df)
+            print(f'{dir_name}:{file_path}处理完成')
+            print(f'耗时:{time.perf_counter() - start}')
+        if len(dfs) >= 2:
+            all_df = pd.concat(dfs)
+        elif len(dfs) == 1:
+            all_df = dfs[0]
+            print(f'{dir_name} only one file found')
+        else:
+            print(dir_name + ' no file')
+            return
         all_filtered_file_name = os.path.join(dir_path, dir_name + '.all.filter.txt.gz')
         all_df.to_csv(all_filtered_file_name, sep='\t', index=False, compression='gzip')
         print(dir_name, 'done')
         print(f'耗时:{time.perf_counter() - start}')
-    else:
-        print(dir_name + ' no file')
-
+    except Exception as e:
+        print(e)
+        print(dir_path, 'failed')
 
 def handle_dirs(dir_paths):
     for dir_path in dir_paths:
