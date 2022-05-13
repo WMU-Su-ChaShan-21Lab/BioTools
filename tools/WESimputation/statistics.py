@@ -78,10 +78,10 @@ def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down
     if not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
         raise Exception('Input dir not exists or not a dir')
     output_dir_path = os.path.join(input_dir_path, 'statistics')
-    if os.path.exists(output_dir_path):
-        rmtree(output_dir_path)
-    os.makedirs(output_dir_path, exist_ok=True)
     if auto_generate:
+        if os.path.exists(output_dir_path):
+            rmtree(output_dir_path)
+        os.makedirs(output_dir_path, exist_ok=True)
         for chromosome, limit in chromosome_sizes.items():
             group_num = math.ceil(limit / size)
             for i in range(0, group_num, generate_group_num):

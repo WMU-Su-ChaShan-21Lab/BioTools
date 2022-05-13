@@ -88,10 +88,10 @@ def handle_tasks(dir_paths, task_num=10):
 @click.option('--auto_generate', '-a', is_flag=True, help='Auto generate scripts')
 def main(input_dir, task_num, node_num, group, auto_generate):
     scripts_dir_path = os.path.join(input_dir, 'filter')
-    if os.path.exists(scripts_dir_path):
-        rmtree(scripts_dir_path)
-    os.makedirs(scripts_dir_path, exist_ok=True)
     if auto_generate:
+        if os.path.exists(scripts_dir_path):
+            rmtree(scripts_dir_path)
+        os.makedirs(scripts_dir_path, exist_ok=True)
         for i in range(node_num):
             with open(os.path.join(scripts_dir_path, f'filter-{i}.sh'), 'w') as f:
                 f.write(f'python {__file__} -i {input_dir} -n {node_num} -g {i} -t {task_num}')
