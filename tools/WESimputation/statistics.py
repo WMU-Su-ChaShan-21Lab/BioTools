@@ -91,7 +91,7 @@ def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down
                         f'python3 {__file__} -i {input_dir_path} -c {chromosome.replace("chr", "")} -s {size} -u {i} -d {i + generate_group_num}')
         return
     chromosome = 'chr' + chromosome_num
-    chromosome_size = chromosome_sizes.get_chromosome_size(chromosome, None)
+    chromosome_size = chromosome_sizes.get(chromosome, None)
     if not chromosome_size:
         raise Exception('Chromosome not exists')
     group_num = math.ceil(chromosome_size // size)
