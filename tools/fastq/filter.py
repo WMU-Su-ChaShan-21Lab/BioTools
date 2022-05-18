@@ -36,10 +36,10 @@ def any_include(filtered_str, rule_list):
 @click.option('--tile', '-t', is_flag=True, help='operate tile, cover --operation')
 @click.option('--reads', '-r', is_flag=True, help='operate reads, cover --operation')
 @click.option('--filter_file_path', '-f', type=str, required=True, help='filter rules file path')
-@click.option('--output-dir', '-o', type=str, default='',
+@click.option('--output_dir', '-o', type=str, default='./',
               help='Output directory path, according to input files to generate files. ' +
                    'If not given, generate file in script run directory')
-@click.option('--output-prefix', '-p', type=str, default='', help='Output file prefix')
+@click.option('--output_prefix', '-p', type=str, default='', help='Output file prefix')
 @print_accurate_execute_time
 def filter_fastq(read1_file_path, read2_file_path, operation, tile, reads, filter_file_path, output_dir, output_prefix):
     """
@@ -123,8 +123,8 @@ def filter_fastq(read1_file_path, read2_file_path, operation, tile, reads, filte
                 if count % 100000 == 0:
                     print(f'read {count} lines')
                 if read1_lines and read2_lines:
-                    if operation == 'tile' and (not any_equal(read1_lines[0].split(":")[4], filter_rules)
-                                                and not any_equal(read2_lines[0].split(":")[4], filter_rules)):
+                    if operation == 'tile' and (not any_equal(read1_lines[0].split(b":")[4], filter_rules)
+                                                and not any_equal(read2_lines[0].split(b":")[4], filter_rules)):
                         read1_output_file.writelines(read1_lines)
                         read2_output_file.writelines(read2_lines)
                     elif operation == 'reads' and (not any_include(read1_lines[1], filter_rules)

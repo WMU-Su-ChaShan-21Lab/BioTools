@@ -82,9 +82,9 @@ def handle_tasks(dir_paths, task_num=10):
 
 @click.command()
 @click.option('--input_dir', '-i', type=str, required=True, help='Input dir')
-@click.option('--task_num', '-t', type=int, default=10, help='Task group num')
 @click.option('--node_num', '-n', type=int, default=10, help='Node group num')
 @click.option('--group', '-g', type=int, default=0, help='Node group')
+@click.option('--task_num', '-t', type=int, default=10, help='Task group num')
 @click.option('--auto_generate', '-a', is_flag=True, help='Auto generate scripts')
 def main(input_dir, task_num, node_num, group, auto_generate):
     scripts_dir_path = os.path.join(input_dir, 'filter')

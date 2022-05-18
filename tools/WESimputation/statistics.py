@@ -66,8 +66,8 @@ def handle_chromosome(output_dir_path, dir_paths: list, chromosome: str, up_rang
 @click.option('--input_dir_path', '-i', type=str, required=True, help='Input dir')
 @click.option('--chromosome_num', '-c', type=str, help='Chromosome')
 @click.option('--size', '-s', type=int, default=10000000, help='Size')
-@click.option('up_group_num', '-u', type=int, default=0, help='Up group number')
-@click.option('down_group_num', '-d', type=int, default=None, help='Down group number')
+@click.option('--up_group_num', '-u', type=int, default=0, help='Up group number')
+@click.option('--down_group_num', '-d', type=int, default=None, help='Down group number')
 @click.option('--auto_generate', '-a', is_flag=True, help='Auto generate scripts')
 @click.option('--generate_group_num', '-g', type=int, default=1, help='Auto generate group by')
 def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down_group_num: int,
