@@ -20,19 +20,25 @@ import click
 
 @click.command()
 @click.argument('input_dir_path', type=click.Path(exists=True))
-@click.option('--prefix','-p', type=str, default='qsub', help='prefix of qsub')
-@click.option('--size', '-s',type=int, default=10, help='qsub size at one time')
+@click.option('--prefix', '-p', type=str, default='qsub', help='prefix of qsub')
+@click.option('--size', '-s', type=int, default=10, help='qsub size at one time')
 def main(input_dir_path, prefix, size):
+    out_put_dir_path = os.path.join(input_dir_path, 'qsub')
     if not input_dir_path or not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
         raise Exception('input_dir_path is not exists or not a directory')
-    shell_file_names = [file_name for file_name in os.listdir(input_dir_path) if prefix not in file_name and file_name.endswith('.sh')]
-    groups = [shell_file_names[i:i + size] for i in range(0, len(shell_file_names), size)]
-    out_put_dir_path = os.path.join(input_dir_path, 'qsub')
+    shell_file_names = [
+        file_name
+        for file_name in os.listdir(input_dir_path)
+        if prefix not in file_name and file_name.endswith('.sh')
+    ]
+    file_count = len(shell_file_names)
+    shell_file_paths = [os.path.join(out_put_dir_path, file_name) for file_name in shell_file_names]
+    groups = [shell_file_paths[i:i + size] for i in range(0, file_count, size)]
     if not os.path.exists(out_put_dir_path):
         os.mkdir(out_put_dir_path)
     for index, group in enumerate(groups):
         # 新建一个qsub文件夹
-        with open(os.path.join(out_put_dir_path,f'{prefix}-{size}-{index}.sh'), 'w') as f:
+        with open(os.path.join(out_put_dir_path, f'{prefix}-{size}-{index}.sh'), 'w') as f:
             f.writelines([f'qsub {file_path}\n' for file_path in group])
 
 
