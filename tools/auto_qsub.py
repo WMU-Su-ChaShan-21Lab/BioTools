@@ -25,7 +25,7 @@ import click
 def main(input_dir_path, prefix, size):
     if not input_dir_path or not os.path.exists(input_dir_path) or not os.path.isdir(input_dir_path):
         raise Exception('input_dir_path is not exists or not a directory')
-    shell_file_names = [file_name for file_name in os.listdir(input_dir_path) if prefix not in file_name]
+    shell_file_names = [file_name for file_name in os.listdir(input_dir_path) if prefix not in file_name and file_name.endswith('.sh')]
     groups = [shell_file_names[i:i + size] for i in range(0, len(shell_file_names), size)]
     out_put_dir_path = os.path.join(input_dir_path, 'qsub')
     if not os.path.exists(out_put_dir_path):
