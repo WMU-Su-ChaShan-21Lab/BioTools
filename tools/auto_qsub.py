@@ -28,7 +28,7 @@ def main(input_dir_path, prefix, size):
     shell_file_names = [file_name for file_name in os.listdir(input_dir_path) if prefix not in file_name]
     groups = [shell_file_names[i:i + size] for i in range(0, len(shell_file_names), size)]
     out_put_dir_path = os.path.join(input_dir_path, 'qsub')
-    if not out_put_dir_path:
+    if not os.path.exists(out_put_dir_path):
         os.mkdir(out_put_dir_path)
     for index, group in enumerate(groups):
         # 新建一个qsub文件夹
