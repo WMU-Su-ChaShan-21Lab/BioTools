@@ -101,7 +101,7 @@ def main(input_dir, task_num, node_num, group, auto_generate):
     dir_paths = [dir_path for dir_path in dir_paths if os.path.isdir(dir_path)]
     dir_count = len(dir_paths)
     print('总共有', dir_count, '个文件夹')
-    group_num = math.ceil(dir_count // node_num)
+    group_num = math.ceil(dir_count / node_num)
     up = group * group_num
     down = (group + 1) * group_num
     print(f'handle {up} to {down}')

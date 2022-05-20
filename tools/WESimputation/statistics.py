@@ -82,8 +82,8 @@ def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down
         if os.path.exists(output_dir_path):
             rmtree(output_dir_path)
         os.makedirs(output_dir_path, exist_ok=True)
-        for chromosome, limit in chromosome_sizes.items():
-            group_num = math.ceil(limit / size)
+        for chromosome, chromosome_size in chromosome_sizes.items():
+            group_num = math.ceil(chromosome_size / size)
             for i in range(0, group_num, generate_group_num):
                 with open(os.path.join(output_dir_path, f'statistics-{chromosome}-{i}-{i + generate_group_num}.sh'),
                           'w') as f:
@@ -94,7 +94,7 @@ def main(input_dir_path, chromosome_num: str, size: int, up_group_num: int, down
     chromosome_size = chromosome_sizes.get(chromosome, None)
     if not chromosome_size:
         raise Exception('Chromosome not exists')
-    group_num = math.ceil(chromosome_size // size)
+    group_num = math.ceil(chromosome_size / size)
     if up_group_num < 0 or down_group_num < 0:
         raise Exception('Up group number or down group number must be greater than 0')
     if up_group_num > group_num:
