@@ -28,7 +28,8 @@ def main(input_dir_path, prefix, size):
     shell_file_names = [file_name for file_name in os.listdir(input_dir_path) if prefix not in file_name]
     groups = [shell_file_names[i:i + size] for i in range(0, len(shell_file_names), size)]
     for index, group in enumerate(groups):
-        with open(os.path.join(input_dir_path, f'{prefix}-{size}-{index}.sh'), 'w') as f:
+        # 新建一个qsub文件夹
+        with open(os.path.join(input_dir_path,'qsub', f'{prefix}-{size}-{index}.sh'), 'w') as f:
             f.writelines([f'qsub {file_path}\n' for file_path in group])
 
 
