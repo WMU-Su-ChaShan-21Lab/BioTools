@@ -18,9 +18,9 @@ import threading
 from queue import Queue
 from urllib.parse import urlencode, unquote
 
-from scripts.encode import base_url, base_search_url, base_bio_samples_url
+from tools.encode import base_url, base_search_url, base_bio_samples_url
 from utils.excel import generate_xlsx_file
-from utils.file import make_dir,remove_file
+from utils.file import make_dir, remove_file
 from utils.http import session
 
 thread_lock = threading.Lock()
@@ -40,6 +40,8 @@ base_search_query = {
     # json格式返回
     'format': 'json',
 }
+
+
 # base_search_query = {
 #     'type': ['Experiment'],
 #     'status': ['released'],
@@ -92,23 +94,28 @@ def get_bio_sample_file(bio_sample_info):
         'file_format': file['file_format'],
         'file_type': file['file_type'],
         'output_type': file['output_type'],
-        'file_size':file.get('file_size', None),
-        'md5sum':file['md5sum'],
+        'file_size': file.get('file_size', None),
+        'md5sum': file['md5sum'],
         'href': file['href'],
     } for file in files if file['output_category'] != 'raw data']
     has_hg38 = any([file['assembly'] == 'GRCh38' for file in files_list])
     row = []
     if has_hg38:
-        row = [list(file.values()) for file in files_list if file['assembly'] == 'GRCh38'
-               and file['file_type'] == 'tsv' and file['output_type'] == 'gene quantifications'
-               ]
+        row = [
+            list(file.values())
+            for file in files_list
+            if file['assembly'] == 'GRCh38' and file['file_type'] == 'tsv' and file[
+                'output_type'] == 'gene quantifications'
+        ]
     # 防止hg38中没有符合条件的，虽然可能性比较低
     if not row or not has_hg38:
-        row = [list(file.values()) for file in files_list if file['assembly'] == 'hg19'
-               # and 'bigBed' not in file['file_type']
-               and ('bed' in file['file_type'] and 'bigBed' not in file['file_type'])
-               # and (file['output_type'] == 'filtered transcribed fragments')
-               ]
+        row = [
+            list(file.values())
+            for file in files_list
+            if file['assembly'] == 'hg19'# and 'bigBed' not in file['file_type']
+            and ('bed' in file['file_type'] and 'bigBed' not in file['file_type'])
+            # and (file['output_type'] == 'filtered transcribed fragments')
+        ]
     # download_links.extend(row)
     return row
 
@@ -147,12 +154,12 @@ def get_file_infos(bio_sample_infos):
 
 
 def download_file(download_info, download_dir='./'):
-    file_size,md5,download_link=download_info
-    download_url=base_url + download_link
+    file_size, md5, download_link = download_info
+    download_url = base_url + download_link
     make_dir(download_dir)
     file_path = os.path.join(download_dir, download_url.split('/')[-1])
     if os.path.exists(file_path):
-        if file_size and os.path.getsize(file_path)==file_size:
+        if file_size and os.path.getsize(file_path) == file_size:
             print(f'{file_path} 文件已经存在，跳过下载')
             return True
         else:
@@ -189,7 +196,7 @@ if __name__ == '__main__':
         'data':
             [
                 ['bio_sample_id', 'cell_type', 'assay_title', 'file_id', 'assembly', 'file_format', 'file_type',
-                 'output_type','file_size','md5sum','download link'],
+                 'output_type', 'file_size', 'md5sum', 'download link'],
                 *file_info_rows
             ]
     })
