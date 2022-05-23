@@ -20,7 +20,7 @@ import click
 
 @click.command()
 @click.argument('input_dir_path', type=click.Path(exists=True))
-@click.option('--minutes', '-m', default=15, help='minutes')
+@click.option('--minutes', '-m', default=0, help='minutes')
 @click.option('--hours', '-h', default=0, help='hours')
 @click.option('--days', '-d', default=0, help='days')
 @click.option('--weeks', '-w', default=0, help='weeks')
@@ -33,6 +33,8 @@ def main(input_dir_path, minutes, hours, days, weeks, months, years):
     days = int(days) + weeks * 7
     hours = int(hours) + days * 24
     minutes = int(minutes) + hours * 60
+    if minutes<=0:
+        raise click.ClickException('minutes must be greater than 0')
 
     with open(os.path.join(input_dir_path, 'auto_at_task.sh'), 'w') as w:
         for index, file_path in enumerate([
