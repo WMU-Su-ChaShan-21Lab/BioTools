@@ -23,7 +23,7 @@ import click
 @click.command()
 @click.argument('input_dir_path', type=click.Path(exists=True))
 @click.option('--size', '-s', type=int, help='Size')
-def main(input_dir_path, size=100000):
+def main(input_dir_path, size=10000000):
     file_names = [
         file_name for file_name in os.listdir(input_dir_path)
         if file_name.endswith('.statistics.txt.gz') and 'all' not in file_name
