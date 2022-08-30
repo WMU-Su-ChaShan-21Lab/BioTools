@@ -143,3 +143,4 @@ gen
 
 #测试文件夹
 test
+*/.ipynb_checkpoints

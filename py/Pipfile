@@ -12,6 +12,7 @@ pandas = "*"
 scipy = "*"
 sympy = "*"
 jupyterlab = "*"
+scanpy = "*"
 
 [dev-packages]
 autopep8 = "*"
