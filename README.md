@@ -38,6 +38,8 @@
 
 ## 环境安装
 
+建议使用conda
+
 ```shell
 # 必须先在conda的base环境下面安装一个R，解决jetbrains的R语言插件选择解释器的时候依赖问题
 conda install -c r r-base -y
@@ -46,7 +48,10 @@ conda create -n bio python=3.10 -y
 conda activate bio
 conda install jupyterlab -y
 conda install jupyter notebook -y
+# 使用jetbrains的IDE时，R环境最好是4.1以下，能够解决控制台的字符集警告问题：Warning in (function (file = "", n = NULL, text = NULL, prompt = "?", keep.source = getOption("keep.source"), :argument encoding="UTF-8" is ignored in MBCS locales
+# 还能够解决图片不在工具包的图展示栏里，而是保存为了PDF文件的问题
 conda install -c r r-base=4.0.5 -y
+#安装R的jupyter内核
 conda insyall -c r r-irkernel -y
 ```
 
