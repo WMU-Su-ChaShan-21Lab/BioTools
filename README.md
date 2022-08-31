@@ -38,27 +38,44 @@
 
 ## 环境安装
 
-建议使用conda
+- 建议使用conda
 
 ```shell
 # 必须先在conda的base环境下面安装一个R，解决jetbrains的R语言插件选择解释器的时候依赖问题
+# 也可以参考这篇文章解决：https://zhuanlan.zhihu.com/p/546788455，但是比较麻烦
+# 注意r和conda-forge两个channel的R语言版本是不一样的，如果需要UTF8编码，必须是4.2.0以上，但是目前两个都没有Windows 64的4.2.0以上版本提供
 conda install -c r r-base -y
+# 或者 conda install -c conda-forge r-base -y
 # 然后就可以创建新的环境进行使用 
 conda create -n bio python=3.10 -y
 conda activate bio
 conda install jupyterlab -y
 conda install jupyter notebook -y
-# 使用jetbrains的IDE时，R环境最好是4.1以下，能够解决控制台的字符集警告问题：Warning in (function (file = "", n = NULL, text = NULL, prompt = "?", keep.source = getOption("keep.source"), :argument encoding="UTF-8" is ignored in MBCS locales
+# 使用jetbrains的IDE时，由于很多情况下，IDE或者插件不是最新版本，R环境最好是4.1（不包含）以下，能够解决控制台的字符集警告问题：Warning in (function (file = "", n = NULL, text = NULL, prompt = "?", keep.source = getOption("keep.source"), :argument encoding="UTF-8" is ignored in MBCS locales
 # 还能够解决图片不在工具包的图展示栏里，而是保存为了PDF文件的问题
 conda install -c r r-base=4.0.5 -y
 #安装R的jupyter内核
 conda insyall -c r r-irkernel -y
 ```
 
-如果Python包conda装不了就用pip安装
-如果Pycharm提示下载索引或者补全包尽量全部下载
+- 如果Python包conda装不了就用pip安装
+- 如果Pycharm提示下载索引或者补全包尽量全部下载
 
-## 创建R语言内核脚本
+## 创建R语言内核ipynb文件
 
-只能通过jupyter选择R内核进行创建，Pycharm目前没有找到方法手动切换到R内核
-启动jupyter：`jupyter lab`或者`jupyter notebook`
+- 只能通过jupyter选择R内核进行创建，Pycharm目前没有找到方法手动切换到R内核
+- 启动jupyter：`jupyter lab`或者`jupyter notebook`
+
+## UTF8编码问题（不使用Rstudio的时候会遇到，但Rstudio其实也没有解决这个问题，只是他进行了转码让所有的程序都能正常运行）
+
+- 一般在使用中文的时候会遇到，不使用中文可以不用关注
+- R4.2.0之前无法彻底解决，建议还是使用Rstudio，别浪费时间
+    - conda目前没有哪个channel提供Windows64的4.2.0版本，只能自己手动下载
+    - 使用了R4.2.0，必须先开启**Windows 系统需要开启utf8支持（实仍然是验性特性）**
+    - 更新Pycharm 2022.2版本并安装最新的R语言插件，否则可能会有很多错误
+    - 参考：<https://www.zhihu.com/question/47618253/answer/2482936156>
+- jetbrains IDE的R语言插件画图中文不显示
+    - 图形不使用IDE模式，本身显示中文
+    - 黑边需要关闭黑夜模式
+    // 
+    - 不需要showtext加载字体，会变得很粗
